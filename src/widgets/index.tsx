@@ -1,45 +1,39 @@
-import { declareIndexPlugin, type ReactRNPlugin, WidgetLocation } from '@remnote/plugin-sdk';
+import {declareIndexPlugin, type ReactRNPlugin, Rem} from '@remnote/plugin-sdk';
 import '../style.css';
-import '../index.css'; // import <widget-name>.css
+import '../index.css';
+import {BuiltInPowerupCodes} from '@remnote/plugin-sdk';
 
-async function onActivate(plugin: ReactRNPlugin) {
-  // Register settings
-  await plugin.settings.registerStringSetting({
-    id: 'name',
-    title: 'What is your Name?',
-    defaultValue: 'Bob',
-  });
-
-  await plugin.settings.registerBooleanSetting({
-    id: 'pizza',
-    title: 'Do you like pizza?',
-    defaultValue: true,
-  });
-
-  await plugin.settings.registerNumberSetting({
-    id: 'favorite-number',
-    title: 'What is your favorite number?',
-    defaultValue: 42,
-  });
-
-  // A command that inserts text into the editor if focused.
-  await plugin.app.registerCommand({
-    id: 'editor-command',
-    name: 'Editor Command',
-    action: async () => {
-      plugin.editor.insertPlainText('Hello World!');
-    },
-  });
-
-  // Show a toast notification to the user.
-  await plugin.app.toast("I'm a toast!");
-
-  // Register a sidebar widget.
-  await plugin.app.registerWidget('sample_widget', WidgetLocation.RightSidebar, {
-    dimensions: { height: 'auto', width: '100%' },
-  });
+async function findChildren(rem: Rem, plugin: ReactRNPlugin, level: number = 0) {
+    for (const child of await rem.getChildrenRem()) {
+        if (child.text.length > 0 && await child.hasPowerup('n')) {
+            console.log("highlight text", child.text,)
+            console.log("child", child)
+            console.log("page", (await child.getParentRem())?.text)
+        }
+        await findChildren(child, plugin, level + 1);
+    }
 }
 
-async function onDeactivate(_: ReactRNPlugin) {}
+async function onActivate(plugin: ReactRNPlugin) {
+
+// Step 1: Get all PDF document Rems
+    const filePowerup = await plugin.powerup.getPowerupByCode(BuiltInPowerupCodes.UploadedFile);
+    if (!filePowerup) return;
+    const pdfRems = await filePowerup.taggedRem();
+
+// Step 2: For each PDF, collect highlight children
+    for (const pdfRem of pdfRems) {
+        const pdfTitle = await plugin.richText.toString(pdfRem.text);
+        const fileName = await pdfRem.getPowerupProperty(BuiltInPowerupCodes.UploadedFile, 'Name');
+        const children = await pdfRem.getChildrenRem();
+
+        console.log(`PDF: ${pdfTitle}, ${fileName}, Highlights: ${children.length}`);
+        findChildren(pdfRem, plugin)
+    }
+
+}
+
+async function onDeactivate(_: ReactRNPlugin) {
+}
 
 declareIndexPlugin(onActivate, onDeactivate);
