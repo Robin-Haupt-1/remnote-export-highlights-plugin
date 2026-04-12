@@ -98,6 +98,8 @@ async function collectHighlightsForRem(
 }
 
 async function exportHighlights(plugin: ReactRNPlugin): Promise<void> {
+  await plugin.app.toast('Exporting PDF highlights to Excel...');
+
   const filePowerup = await plugin.powerup.getPowerupByCode(BuiltInPowerupCodes.UploadedFile);
   if (!filePowerup) {
     await plugin.app.toast('Unable to find uploaded file powerup.');
@@ -124,7 +126,7 @@ async function exportHighlights(plugin: ReactRNPlugin): Promise<void> {
   const xml = buildExcelXml(rows);
   downloadExcel(xml);
 
-  await plugin.app.toast(`Exported ${rows.length} highlights to Excel.`);
+  await plugin.app.toast(`Excel download started for ${rows.length} highlights.`);
 }
 
 async function onActivate(plugin: ReactRNPlugin) {
