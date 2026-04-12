@@ -27,7 +27,7 @@ async function onActivate(plugin: ReactRNPlugin) {
         const fileName = await pdfRem.getPowerupProperty(BuiltInPowerupCodes.UploadedFile, 'Name');
         const children = await pdfRem.getChildrenRem();
 
-        console.log(`PDF: ${pdfTitle}, ${fileName}, Highlights: ${children.length}`);
+        console.log(`PDF: ${pdfTitle}`);
         findChildren(pdfRem, plugin)
     }
 
