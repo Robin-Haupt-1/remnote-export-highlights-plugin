@@ -6,7 +6,7 @@ import {BuiltInPowerupCodes} from '@remnote/plugin-sdk';
 async function findChildren(rem: Rem, plugin: ReactRNPlugin, level: number = 0) {
     for (const child of await rem.getChildrenRem()) {
         if (child.text.length > 0 && await child.hasPowerup('n')) {
-            console.log("highlight text", child.text,)
+            console.log("highlight text", child.text[0],)
             console.log("child", child)
             console.log("page", (await child.getParentRem())?.text)
         }
@@ -28,7 +28,7 @@ async function onActivate(plugin: ReactRNPlugin) {
         const children = await pdfRem.getChildrenRem();
 
         console.log(`PDF: ${pdfTitle}`);
-        findChildren(pdfRem, plugin)
+        await findChildren(pdfRem, plugin)
     }
 
 }
