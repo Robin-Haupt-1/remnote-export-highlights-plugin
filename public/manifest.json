@@ -1,18 +1,17 @@
 {
-  "author": "ROBIN HAUPT",
-  "name": "test pilot - export highlights",
+  "author": "ROBINH",
+  "name": "export highlights",
   "description": "",
   "enableOnMobile": true,
-  "id": "ROBINH-mo2g8ywtest",
-  "unlisted": true,
+  "id": "ROBINH-mo2g8yw",
   "manifestVersion": 1,
-  "repoUrl": "https://github.com/Robin-Haupt-1/remnote-export-highlights-plugin",
+  "repoUrl": "https://github.com/remnoteio/remnote-plugin-template-react",
   "version": {
     "major": 0,
     "minor": 0,
     "patch": 1
   },
-  "requestNative": true,
+  "requestNative": false,
   "requiredScopes": [
     {
       "type": "All",
