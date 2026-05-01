@@ -163,7 +163,7 @@ async function onActivate(plugin: ReactRNPlugin) {
 
   await plugin.app.registerCommand({
     id: `${pluginId}:export-highlights-excel`,
-    name: 'Export PDF Highlights to Excel',
+    name: 'Export Highlights to CSV',
     description: 'Export all PDF highlights with file name, text, page number, updated timestamp, and notes.',
     keywords: 'pdf highlight export excel xls',
     action: async () => {

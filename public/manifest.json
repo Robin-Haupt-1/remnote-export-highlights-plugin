@@ -1,15 +1,15 @@
 {
-  "author": "ROBINH",
-  "name": "export highlights",
-  "description": "",
+  "author": "Robin Haupt",
+  "name": "Export Highlights",
+  "description": "Exports highlights you made in uploaded files to Excel.",
   "enableOnMobile": true,
-  "id": "ROBINH-mo2g8yw",
+  "id": "export-highlights",
   "manifestVersion": 1,
-  "repoUrl": "https://github.com/remnoteio/remnote-plugin-template-react",
+  "repoUrl": "https://github.com/Robin-Haupt-1/remnote-export-highlights-plugin",
   "version": {
-    "major": 0,
+    "major": 1,
     "minor": 0,
-    "patch": 1
+    "patch": 0
   },
   "requestNative": false,
   "requiredScopes": [
