@@ -7,6 +7,7 @@ type HighlightRow = {
   fullText: string;
   pageNumber: string;
   updatedTimestamp: string;
+  notes: string[];
 };
 
 function escapeXml(value: string): string {
@@ -33,6 +34,7 @@ function buildExcelXml(rows: HighlightRow[]): string {
         <Cell><Data ss:Type="String">Full Text</Data></Cell>
         <Cell><Data ss:Type="String">Page Number</Data></Cell>
         <Cell><Data ss:Type="String">Updated Timestamp</Data></Cell>
+        <Cell><Data ss:Type="String">Notes</Data></Cell>
       </Row>`;
 
   const body = rows
@@ -43,6 +45,7 @@ function buildExcelXml(rows: HighlightRow[]): string {
         <Cell><Data ss:Type="String">${escapeXml(row.fullText)}</Data></Cell>
         <Cell><Data ss:Type="String">${escapeXml(row.pageNumber)}</Data></Cell>
         <Cell><Data ss:Type="String">${escapeXml(row.updatedTimestamp)}</Data></Cell>
+        <Cell><Data ss:Type="String">${escapeXml(JSON.stringify(row.notes))}</Data></Cell>
       </Row>`,
     )
     .join('');
@@ -69,6 +72,30 @@ function downloadExcel(xml: string): void {
   document.body.removeChild(link);
 }
 
+async function collectNotesForHighlight(
+  highlight: Rem,
+  plugin: ReactRNPlugin,
+): Promise<string[]> {
+  const noteChildren = await highlight.getChildrenRem();
+  const notes: string[] = [];
+
+  for (const child of noteChildren) {
+    // PDFHighlight Rems carry their powerup properties (Color, PDF, Data, …) as
+    // child Rems. Those are not user notes — filter them out.
+    if (await child.isPowerupProperty()) continue;
+
+    // Defensive: skip nested highlights too, just in case.
+    if (await child.hasPowerup(BuiltInPowerupCodes.PDFHighlight)) continue;
+
+    const noteText = (await plugin.richText.toString(child.text)).trim();
+    if (noteText.length > 0) {
+      notes.push(noteText);
+    }
+  }
+
+  return notes;
+}
+
 async function collectHighlightsForRem(
   rem: Rem,
   plugin: ReactRNPlugin,
@@ -84,12 +111,14 @@ async function collectHighlightsForRem(
       const fullText = await plugin.richText.toString(child.text);
       const pageNumber = await plugin.richText.toString((await child.getParentRem())?.text ?? []);
       const updatedTimestamp = new Date(child.updatedAt).toISOString();
+      const notes = await collectNotesForHighlight(child, plugin);
 
       rows.push({
         fileName,
         fullText,
         pageNumber,
         updatedTimestamp,
+        notes,
       });
     }
 
@@ -135,7 +164,7 @@ async function onActivate(plugin: ReactRNPlugin) {
   await plugin.app.registerCommand({
     id: `${pluginId}:export-highlights-excel`,
     name: 'Export PDF Highlights to Excel',
-    description: 'Export all PDF highlights with file name, text, page number, and updated timestamp.',
+    description: 'Export all PDF highlights with file name, text, page number, updated timestamp, and notes.',
     keywords: 'pdf highlight export excel xls',
     action: async () => {
       await exportHighlights(plugin);
@@ -143,6 +172,7 @@ async function onActivate(plugin: ReactRNPlugin) {
   });
 }
 
-async function onDeactivate(_: ReactRNPlugin) {}
+async function onDeactivate(_: ReactRNPlugin) {
+}
 
 declareIndexPlugin(onActivate, onDeactivate);
